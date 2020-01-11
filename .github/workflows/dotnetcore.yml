@@ -20,5 +20,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        file: './VanityKristConsole.dll'
+        file: '/home/runner/work/VanityKristConsole/VanityKristConsole/bin/Release/netcoreapp3.0/VanityKristConsole.dll'
         type: 'application/octet-stream'
