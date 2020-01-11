@@ -15,10 +15,9 @@ jobs:
         dotnet-version: 3.0.101
     - name: Build with dotnet
       run: dotnet build --configuration Release
-    - name: Upload asset to release
-      uses: actions-github/upload-to-release@master
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: '/home/runner/work/VanityKristConsole/VanityKristConsole/bin/Release/netcoreapp3.0/VanityKristConsole.dll'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        file: '/home/runner/work/VanityKristConsole/VanityKristConsole/bin/Release/netcoreapp3.0/VanityKristConsole.dll'
-        type: 'application/octet-stream'
