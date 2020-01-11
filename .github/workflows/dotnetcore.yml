@@ -16,7 +16,7 @@ jobs:
     - name: Build with dotnet
       run: dotnet build --configuration Release
     - name: Upload asset to release
-      uses: docker://gact/upload-to-release:latest
+      uses: actions-github/upload-to-release@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
