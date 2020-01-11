@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using System.Threading;
 using System.IO;
+using System.Collections.Generic;
 
 namespace VanityKristConsole
 {
@@ -23,18 +24,19 @@ namespace VanityKristConsole
             try
             {
                 var o = new CommandLineArgs(args);
+                o.Term = "jake";
                 if (o.Term == "" && o.RegEx == "")
                 {
                     Console.WriteLine("The term or regex must be set.");
                     Console.ReadKey();
-                    return;
+                    Environment.Exit(0);
                 }
 
                 if (o.Term != "" && o.RegEx != "")
                 {
                     Console.WriteLine("The term and regex cannot both be set at the same time.");
                     Console.ReadKey();
-                    return;
+                    Environment.Exit(0);
                 }
 
                 CancellationTokenSource cts = new CancellationTokenSource();
@@ -61,6 +63,7 @@ namespace VanityKristConsole
                     Task.Run(() => MinerThread(i, perThread, bp, reg, h));
                     bp += perThread;
                 }
+                Console.WriteLine();
 
                 Task.Run(() => UpdateCounter(cts.Token));
                 await Task.Delay(-1);
@@ -80,10 +83,12 @@ namespace VanityKristConsole
 
                 counter++;
 
-                if (!address.Contains(term) || (!nums && HasNumbers(address)) || (reg != null && !reg.Match(address).Success))
+                if (!address.Contains(term) || (reg != null && !reg.Match(address).Success))
                     continue;
-                else
-                    Write(id, address, passwd);
+                else if (!nums && HasNumbers(address))
+                    continue;
+
+                Write(id, address, passwd);
             }
             return Task.CompletedTask;
         }
@@ -112,14 +117,14 @@ namespace VanityKristConsole
             while (n < 9)
             {
                 link = Convert.ToInt32(string.Empty + stick[2 * n] + stick[2 * n + 1], 16) % 9;
-                if (!string.IsNullOrEmpty(protein[link]))
+                if (protein[link] != string.Empty)
                 {
                     v2.Append(base36[(int)Math.Floor(Convert.ToByte(protein[link], 16) / 7d)]);
                     protein[link] = string.Empty;
                     n++;
                 }
                 else stick = BytesToHex(h.ComputeHash(Encoding.UTF8.GetBytes(stick)));
-            }
+            } 
             return v2.ToString();
         }
 
@@ -189,7 +194,8 @@ namespace VanityKristConsole
 
         private void Write(int id, string address, string passwd)
         {
-            Console.WriteLine($"thread {id} found {address}, with pw {passwd}");
+            Console.CursorTop -= 1;
+            Console.WriteLine($"\nthread {id} found {address}, with pw {passwd}");
             TextWriter.Synchronized(tw).WriteLine($"{address}:{passwd}");
         }
 
@@ -198,7 +204,8 @@ namespace VanityKristConsole
             while (true)
             {
                 if (token.IsCancellationRequested) return Task.CompletedTask;
-                Console.WriteLine($"{counter} A/s");
+                Console.CursorLeft = 0;
+                Console.Write($"{counter} A/s");
                 counter = 0;
                 Thread.Sleep(1000);
             }
