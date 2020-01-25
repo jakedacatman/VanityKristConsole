@@ -24,7 +24,6 @@ namespace VanityKristConsole
             try
             {
                 var o = new CommandLineArgs(args);
-                o.Term = "jake";
                 if (o.Term == "" && o.RegEx == "")
                 {
                     Console.WriteLine("The term or regex must be set.");
