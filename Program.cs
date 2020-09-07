@@ -75,19 +75,51 @@ namespace VanityKristConsole
 
         private Task MinerThread(int id, ulong workSize, ulong basepasswd, Regex reg, SHA256 h)
         {
-            for (ulong curr = basepasswd; curr < (basepasswd + workSize); curr++)
+            if (reg == null)
             {
-                var passwd = $"{curr:x}";
-                var address = ToV2(passwd, h);
+                if (nums)
+                    for (ulong curr = basepasswd; curr < (basepasswd + workSize); curr++)
+                    {
+                        var passwd = $"{curr:x}";
+                        var address = ToV2(passwd, h);
 
-                counter++;
+                        counter++;
 
-                if (!address.Contains(term) || (reg != null && !reg.Match(address).Success))
-                    continue;
-                else if (!nums && HasNumbers(address))
-                    continue;
+                        if (!address.Contains(term))
+                        continue;
 
-                Write(id, address, passwd);
+                        Write(id, address, passwd);
+                    }
+                else
+                    for (ulong curr = basepasswd; curr < (basepasswd + workSize); curr++)
+                    {
+                        var passwd = $"{curr:x}";
+                        var address = ToV2(passwd, h);
+
+                        counter++;
+
+                        if (HasNumbers(address))
+                            continue;
+                        else if (!address.Contains(term))
+                            continue;
+
+                        Write(id, address, passwd);
+                    }
+            }
+            else
+            {
+                for (ulong curr = basepasswd; curr < (basepasswd + workSize); curr++)
+                {
+                    var passwd = $"{curr:x}";
+                    var address = ToV2(passwd, h);
+
+                    counter++;
+
+                    if (!reg.Match(address).Success)
+                        continue;
+
+                    Write(id, address, passwd);
+                }
             }
             return Task.CompletedTask;
         }
